@@ -11,7 +11,7 @@ import { TableContent } from "./components/TableContent";
 import { TabContent } from "./components/TabContent";
 import { Home } from "./components/Home";
 import { SelectParam } from 'antd/lib/menu';
-import { string } from 'prop-types';
+import { SelectAdd } from "./components/SelectAdd";
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -24,6 +24,8 @@ type AppProps = {
 };
 
 type ContentItem = {
+  name: string,
+  parent?: string,
   path: string,
   component: JSX.Element
 }
@@ -31,11 +33,12 @@ type ContentItem = {
 
 class App extends React.Component<AppProps, AppState> {
   private contentMap: Map<string, ContentItem> = new Map<string, ContentItem>([
-    ["form", { path: "Inhalt/Formular", component: <FormContent /> }],
-    ["cards", { path: "Inhalt/Karten", component: <Cards /> }],
-    ["table", { path: "Inhalt/Tabelle", component: <TableContent /> }],
-    ["tabs", { path: "Inhalt/Tabs", component: <TabContent /> }],
-    ["home", { path: "Home", component: <Home /> }]
+    ["form", { name: "Formular", parent: "content", path: "Inhalt/Formular", component: <FormContent /> }],
+    ["cards", { name: "Karten", parent: "content", path: "Inhalt/Karten", component: <Cards /> }],
+    ["table", { name: "Tabelle", parent: "content", path: "Inhalt/Tabelle", component: <TableContent /> }],
+    ["tabs", { name: "Tabs", parent: "content", path: "Inhalt/Tabs", component: <TabContent /> }],
+    ["dropdown", { name: "Dropdown", parent: "content", path: "Inhalt/Dropdown", component: <SelectAdd /> }],
+    ["home", { name: "Home", path: "Home", component: <Home /> }]
   ]);
 
   constructor(props: AppProps) {
@@ -50,7 +53,7 @@ class App extends React.Component<AppProps, AppState> {
         <Layout>
           <Header style={{ background: "lightblue", padding: 10 }}>
             <Avatar style={{ float: "right" }} icon="user" />
-            <Title style={{}} level={3}>ANT Design Layout</Title>
+            <Title style={{}} level={3}>ANT Design Beispiel: verschiedene Komponenten</Title>
           </Header>
           <Layout>
             <Sider style={{}}>
@@ -60,10 +63,7 @@ class App extends React.Component<AppProps, AppState> {
                 <SubMenu key="content" title={<span> <Icon type="database" />
                   Inhalt</span>}>
                   <Menu.ItemGroup>
-                    <Menu.Item key="form">Formular</Menu.Item>
-                    <Menu.Item key="table">Tabelle</Menu.Item>
-                    <Menu.Item key="tabs">Tabs</Menu.Item>
-                    <Menu.Item key="cards">Karten</Menu.Item>
+                    {this.renderMenuItems("content")}
                   </Menu.ItemGroup>
                 </SubMenu>
               </Menu>
@@ -79,15 +79,27 @@ class App extends React.Component<AppProps, AppState> {
             </Layout>
           </Layout>
         </Layout>
-
       </div>
     );
+  }
+
+  renderMenuItems = (parent: string) => {
+    let jsxElements: JSX.Element[] = [];
+    this.contentMap.forEach((item: ContentItem, key: string) => {
+      if (item.parent === parent) {
+        jsxElements.push(<Menu.Item key={key}>{item.name}</Menu.Item>);
+      }
+    });
+
+    return jsxElements;
+
+
   }
 
   renderContent = () => {
     const contentItem = this.contentMap.get(this.state.content);
 
-    if (contentItem != undefined) {
+    if (contentItem !== undefined) {
       return (contentItem.component);
     }
     else {
@@ -98,7 +110,7 @@ class App extends React.Component<AppProps, AppState> {
   renderBreadcrumb = () => {
     const contentItem = this.contentMap.get(this.state.content);
 
-    if (contentItem != undefined) {
+    if (contentItem !== undefined) {
       let items: string[] = contentItem.path.split("/");
       return (items.map((item: string, index: number) => (<Breadcrumb.Item>{item}</Breadcrumb.Item>)));
     }
