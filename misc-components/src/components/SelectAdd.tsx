@@ -2,7 +2,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 
-import { Select, Icon, Divider } from "antd";
+import { Select, Icon, Divider, ConfigProvider } from "antd";
 
 const { Option } = Select;
 
@@ -16,7 +16,7 @@ export class SelectAdd extends React.Component<{}, State> {
     super({});
     this.state = {
       input: "",
-      items: ["Item A", "Item B", "Item C"]
+      items: ["Eintrag A", "Eintrag B", "Eintrag C"]
     };
   }
 
@@ -24,9 +24,9 @@ export class SelectAdd extends React.Component<{}, State> {
     let selectProps = {
       showSearch: true,
       style: {
-        width: 200
+        width: 300
       },
-      placeholder: "Select an item",
+      placeholder: "Eintrag auswählen",
       optionFilterProp: "children",
       allowClear: true,
       onSearch: this.onInput,
@@ -40,11 +40,13 @@ export class SelectAdd extends React.Component<{}, State> {
     };
 
     return (
-      <Select {...selectProps}>
-        {this.state.items.map((item: string) => (
-          <Option value={item}>{item}</Option>
-        ))}
-      </Select>
+      <ConfigProvider renderEmpty={this.renderNoMatch}>
+        <Select {...selectProps}>
+          {this.state.items.map((item: string) => (
+            <Option value={item}>{item}</Option>
+          ))}
+        </Select>
+      </ConfigProvider>
     );
   }
 
@@ -60,12 +62,14 @@ export class SelectAdd extends React.Component<{}, State> {
             style={{
               padding: "4px 8px",
               cursor: "pointer",
-              backgroundColor: "lightblue"
+              backgroundColor: "royalblue"
             }}
             onMouseDown={e => e.preventDefault()}
             onClick={this.addItem}
           >
-            <Icon type="plus" /> Add item:  {this.state.input}
+            <Icon type="plus-circle" style={{ fontSize: "22px", color: "white", marginRight: 5 }} theme="twoTone" />
+            <span style={{ color: "white", marginRight: 5 }}> Eintrag erstellen: </span>
+            <span style={{ color: "white" }}> {this.state.input} </span>
           </div>
         </div>
       );
@@ -74,21 +78,31 @@ export class SelectAdd extends React.Component<{}, State> {
     }
   };
 
+  renderNoMatch = () => {
+    return (
+      <div style={{ textAlign: "center" }}>
+        <Icon type="info-circle" />
+        <span style={{ marginLeft: 5 }}>Keine Einträge vorhanden, <br />die zur Eingabe passen!</span>
+      </div>
+    );
+  }
+
   onInput = (input: string) => {
     if (input.length > 0) {
       this.setState({ input });
-    } else {
+    }
+    else {
       this.setState({ input: "" });
     }
   };
 
   onSelect = (value: any) => {
-    alert("Open item: " + value);
+    alert("Eintrag öffnen: " + value);
   };
 
   addItem = () => {
     let input: string = this.state.input;
-    alert("Add new item: " + input);
+    alert("Neuer Eintrag: " + input);
     let newItems = this.state.items.concat(input);
     this.setState({ items: newItems });
   };
